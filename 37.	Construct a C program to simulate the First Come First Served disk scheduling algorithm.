@@ -1,1 +1,0 @@
-36.	With linked allocation, each file is a linked list of disk blocks; the disk blocks may be scattered anywhere on the disk. 
