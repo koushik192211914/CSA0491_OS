@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    int fd = open("example.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) {
+        perror("Error creating file");
+        exit(EXIT_FAILURE);
+    }
+
+    int flags = fcntl(fd, F_GETFL);
+    if (flags == -1) {
+        perror("Error getting file flags");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("File flags: %d\n", flags);
+
+    off_t offset = lseek(fd, 0, SEEK_END);
+    if (offset == -1) {
+        perror("Error seeking file");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Current file offset: %ld\n", (long)offset);
+
+    struct stat fileStat;
+    if (stat("example.txt", &fileStat) == -1) {
+        perror("Error getting file stats");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("File size: %ld bytes\n", fileStat.st_size);
+    printf("File permissions: %o\n", fileStat.st_mode & 0777);
+
+    DIR *dir = opendir(".");
+    if (dir == NULL) {
+        perror("Error opening directory");
+        exit(EXIT_FAILURE);
+    }
+
+    struct dirent *dirEntry;
+    while ((dirEntry = readdir(dir)) != NULL) {
+        printf("Found file: %s\n", dirEntry->d_name);
+    }
+
+    closedir(dir);
+
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
