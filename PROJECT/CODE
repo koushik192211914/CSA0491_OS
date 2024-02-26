@@ -1,0 +1,34 @@
+# File: sync_app.py
+
+from flask import Flask, request, jsonify
+import os
+import requests
+
+app = Flask(_name_)
+
+@app.route('/sync', methods=['POST'])
+def sync():
+    file = request.files['file']
+    path = request.form['path']
+    filename = os.path.join(path, file.filename)
+    file.save(filename)
+    return jsonify({"success": True})
+
+def sync_client(local_path, server_url, remote_path):
+    files = {'file': open(local_path, 'rb')}
+    data = {'path': remote_path}
+    response = requests.post(server_url, files=files, data=data)
+    if response.status_code == 200:
+        print(f"Uploaded {local_path} to {remote_path} on the server.")
+    else:
+        print("Failed to upload.")
+
+if _name_ == '_main_':
+    # Start the Flask server
+    server_url = 'http://127.0.0.1:5000/sync'
+    app.run(debug=True, port=5000)
+
+    # Simulate client uploading a file
+    local_path = 'path/to/local/file.txt'
+    remote_path = 'path/in/server'
+    sync_client(local_path, server_url, remote_path)
